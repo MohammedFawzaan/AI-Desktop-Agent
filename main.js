@@ -1,10 +1,19 @@
 import { app, BrowserWindow } from "electron";
-import path from "path";
 import { fileURLToPath } from "url";
-import { askGemini } from "./src/llm/llmClient.js";
+import { runAgent } from "./src/agent/agentLoop.js";
+import path from "path";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+async function startChat() {
+    const response = await runAgent(
+        "You MUST call dummy_tool with message 'hello from agent'."
+    );
+
+    console.log("\nFinal Response:\n");
+    console.log(response);
+}
 
 const createWindow = () => {
     const win = new BrowserWindow({
@@ -21,20 +30,14 @@ const createWindow = () => {
 app.whenReady().then(async () => {
     try {
         createWindow();
+        await startChat();
 
         app.on('activate', () => {
             if (BrowserWindow.getAllWindows().length === 0) createWindow();
         });
 
-        const response = await askGemini(
-            "Explain what an AI agent is in 3 lines."
-        );
-
-        console.log("\nGemini Response:\n");
-        console.log(response);
-
     } catch (error) {
-        console.error("Gemini Error:", error);
+        console.error("Error:", error);
     }
 });
 
