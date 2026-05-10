@@ -1,0 +1,28 @@
+{
+  "name": "ai-desktop-agent",
+  "version": "1.0.0",
+  "description": "an ai agent which can take actions on desktop",
+  "homepage": "https://github.com/MohammedFawzaan/AI-Desktop-Agent#readme",
+  "bugs": {
+    "url": "https://github.com/MohammedFawzaan/AI-Desktop-Agent/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MohammedFawzaan/AI-Desktop-Agent.git"
+  },
+  "license": "ISC",
+  "author": "Mohammed Fawzaan",
+  "type": "module",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^42.0.1"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "dotenv": "^17.4.2"
+  }
+}
