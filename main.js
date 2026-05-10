@@ -8,7 +8,7 @@ const __dirname = path.dirname(__filename);
 
 async function startChat() {
     const response = await runAgent(
-        "You MUST call dummy_tool with message 'hello from agent'."
+        "can you please chrome browser - google chrome in my pc ?"
     );
 
     console.log("\nFinal Response:\n");

@@ -1,26 +1,25 @@
+import { openApplication } from "./osTools.js";
+
 export const tools = [
     {
-        name: "dummy_tool",
-        description: "A dummy test tool",
+        name: "open_application",
+        description: "Open any desktop application on the operating system.",
         parameters: {
             type: "object",
             properties: {
-                message: {
+                appName: {
                     type: "string",
-                    description: "Hello There this is a Dummy Tool Call"
+                    description: "The exact executable name of the application to open (e.g., 'code' for VS Code, 'calc' for Calculator, 'notepad')"
                 }
             },
-            required: ["message"]
+            required: ["appName"]
         }
     }
 ];
 
 export async function executeTool(name, args) {
-    if (name === "dummy_tool") {
-        return {
-            success: true,
-            result: `Dummy tool executed with message: ${args.message}`
-        };
+    if (name === "open_application") {
+        return await openApplication(args.appName);
     }
 
     return {
