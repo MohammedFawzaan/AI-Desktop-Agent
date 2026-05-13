@@ -2,13 +2,10 @@
   "name": "ai-desktop-agent",
   "version": "1.0.0",
   "description": "an ai agent which can take actions on desktop",
-  "homepage": "https://github.com/MohammedFawzaan/AI-Desktop-Agent#readme",
-  "bugs": {
-    "url": "https://github.com/MohammedFawzaan/AI-Desktop-Agent/issues"
-  },
+  "homepage": "https://github.com/MohammedFawzaan/Desktop-AI-Agent#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MohammedFawzaan/AI-Desktop-Agent.git"
+    "url": "git+https://github.com/MohammedFawzaan/Desktop-AI-Agent.git"
   },
   "license": "ISC",
   "author": "Mohammed Fawzaan",
@@ -16,14 +13,20 @@
   "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "electron ."
+    "dev": "concurrently \"vite\" \"electron .\"",
+    "start": "vite build && electron ."
   },
   "devDependencies": {
-    "electron": "^42.0.1"
+    "@vitejs/plugin-react": "^6.0.1",
+    "concurrently": "^9.2.1",
+    "electron": "^42.0.1",
+    "vite": "^8.0.11"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
     "dotenv": "^17.4.2",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
     "readline": "^1.3.0"
   }
 }

@@ -1,4 +1,4 @@
-import { openApplication } from "./osTools.js";
+import { openApplication } from "../tools/osTools.js";
 
 export const tools = [
     {

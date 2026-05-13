@@ -9,7 +9,8 @@ export async function openApplication(appName) {
 
         // WINDOWS
         if (platform === "win32") {
-            command = `start "" "${appName}"`;
+            // Smart search Start Menu, then fallback to direct start
+            command = `powershell -Command "$app = Get-StartApps | Where-Object { $_.Name -replace '[\\s-]', '' -like '*${appName.replace(/[\s-]/g, '')}*' } | Select-Object -First 1; if ($app) { Start-Process explorer.exe shell:AppsFolder\\$($app.AppID) } else { Start-Process '${appName}' }"`;
         }
         // MACOS
         else if (platform === "darwin") {

@@ -1,7 +1,6 @@
-import { contextBridge } from "electron";
+const { contextBridge, ipcRenderer } = require("electron");
 
-contextBridge.exposeInMainWorld('versions', {
-    node: () => process.versions.node,
-    chrome: () => process.versions.chrome,
-    electron: () => process.versions.electron,
+contextBridge.exposeInMainWorld('api', {
+    sendMessage: (text) => ipcRenderer.send('user-message', text),
+    onResponse: (callback) => ipcRenderer.on('agent-response', (event, response) => callback(response))
 });

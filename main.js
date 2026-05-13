@@ -1,19 +1,13 @@
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, ipcMain } from "electron";
 import { fileURLToPath } from "url";
 import { runAgent } from "./src/agent/agentLoop.js";
 import path from "path";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-async function startChat() {
-    const response = await runAgent(
-        "can you please chrome browser - google chrome in my pc ?"
-    );
-
-    console.log("\nFinal Response:\n");
-    console.log(response);
-}
 
 const createWindow = () => {
     const win = new BrowserWindow({
@@ -24,13 +18,32 @@ const createWindow = () => {
         }
     });
 
-    win.loadFile("index.html");
+    // In dev mode load from Vite dev server, in prod load the built file
+    if (process.env.NODE_ENV === 'development') {
+        win.loadURL('http://localhost:5173');
+    } else {
+        win.loadFile('dist/index.html');
+    }
 };
 
 app.whenReady().then(async () => {
     try {
         createWindow();
-        await startChat();
+
+        ipcMain.on('user-message', async (event, text) => {
+            try {
+                const response = await runAgent(text);
+
+                console.log("\nFinal Response:\n");
+                console.log(response);
+
+                // Send the LLM's response back to the React UI
+                event.reply('agent-response', response);
+            } catch (error) {
+                console.error(error);
+                event.reply('agent-response', "Sorry I encountered an error.");
+            }
+        });
 
         app.on('activate', () => {
             if (BrowserWindow.getAllWindows().length === 0) createWindow();

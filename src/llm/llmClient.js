@@ -5,13 +5,12 @@ dotenv.config({ quiet: true });
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY);
 
-const model = genAI.getGenerativeModel({ 
+const model = genAI.getGenerativeModel({
     model: 'gemini-2.5-flash',
-    systemInstruction: `You are an AI Desktop Agent capable of executing tasks on the user's computer. 
-    You have access to tools that control the OS.
+    systemInstruction: `Your name is Friday, You are an AI Desktop Agent capable of executing tasks on the user's computer. 
+    You have capabilities to answer what users is asking and access the tools to control the OS.
     Rules:
-    - Be concise in your responses.
-    - When asked to open an app, use the exact executable name if possible.`
+    - Be concise in your responses.`
 });
 
 export async function generateResponse(contents, tools = []) {
@@ -24,6 +23,8 @@ export async function generateResponse(contents, tools = []) {
                 }
             ]
         });
+
+        console.log(result.response);
 
         return result.response;
     } catch (error) {

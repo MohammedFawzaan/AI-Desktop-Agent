@@ -1,5 +1,5 @@
 import { generateResponse } from "../llm/llmClient.js";
-import { tools, executeTool } from "../tools/registry.js";
+import { tools, executeTool } from "../registry/tools.js";
 
 export async function runAgent(userMessage) {
     const messages = [
