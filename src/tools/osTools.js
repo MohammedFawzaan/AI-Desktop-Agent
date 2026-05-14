@@ -9,7 +9,6 @@ export async function openApplication(appName) {
 
         // WINDOWS
         if (platform === "win32") {
-            // Smart search Start Menu, then fallback to direct start
             command = `powershell -Command "$app = Get-StartApps | Where-Object { $_.Name -replace '[\\s-]', '' -like '*${appName.replace(/[\s-]/g, '')}*' } | Select-Object -First 1; if ($app) { Start-Process explorer.exe shell:AppsFolder\\$($app.AppID) } else { Start-Process '${appName}' }"`;
         }
         // MACOS
@@ -21,7 +20,7 @@ export async function openApplication(appName) {
             command = `"${appName}" &`;
         }
 
-        exec(command, (error) => {
+        exec(command, { timeout: 10000 }, (error) => {
             if (error) {
                 resolve({
                     success: false,
