@@ -2,6 +2,7 @@ import { generateResponse } from "../llm/llmClient.js";
 import { tools, executeTool } from "../registry/tools.js";
 
 const conversationHistory = [];
+const MAX_HISTORY_SIZE = 40;
 
 export async function runAgent(userMessage) {
     conversationHistory.push({
@@ -10,17 +11,19 @@ export async function runAgent(userMessage) {
     });
 
     let iterations = 0;
-    const MAX_ITERATIONS = 5;
+    const MAX_ITERATIONS = 10;
 
     while (iterations < MAX_ITERATIONS) {
         iterations++;
 
-        // Calling llm to decide the tool or generate reponse.
-        // send messages + tools to llm.
         const response = await generateResponse(conversationHistory, tools);
-        if (!response.candidates || response.candidates.length === 0) {
+
+        if (response.error)
+            throw new Error(response.error);
+
+        if (!response.candidates || response.candidates.length === 0)
             throw new Error("No candidates returned from Gemini");
-        }
+
         const candidate = response.candidates[0];
         const parts = candidate.content.parts;
 
@@ -37,6 +40,7 @@ export async function runAgent(userMessage) {
                 parts: [{ text: text }]
             });
 
+            trimHistory();
             return text;
         }
 
@@ -54,7 +58,6 @@ export async function runAgent(userMessage) {
                 console.log(`\nTool Called: ${toolName}`);
                 console.log("Arguments:", toolArgs);
 
-                // Execute the Tool
                 const toolResult = await executeTool(toolName, toolArgs);
                 console.log("Tool Result:", toolResult);
 
@@ -62,16 +65,15 @@ export async function runAgent(userMessage) {
                     functionResponse: {
                         name: toolName,
                         response: {
-                            success: result.success,
-                            content: result.result
+                            success: toolResult.success,
+                            content: toolResult.result
                         }
                     }
-                }
+                };
             })
         );
 
-        console.log("\nTool Result:");
-        console.log(toolResult);
+        console.log("\nTool Results:", toolResults);
 
         // Add Tool Response to history
         conversationHistory.push({
@@ -79,7 +81,15 @@ export async function runAgent(userMessage) {
             parts: toolResults
         });
     }
+
     const errorMsg = "I was unable to complete the task within the allowed steps. Please try rephrasing your request.";
     conversationHistory.push({ role: "model", parts: [{ text: errorMsg }] });
+    trimHistory();
     return errorMsg;
+}
+
+function trimHistory() {
+    if (conversationHistory.length > MAX_HISTORY_SIZE) {
+        conversationHistory.splice(0, conversationHistory.length - MAX_HISTORY_SIZE);
+    }
 }
