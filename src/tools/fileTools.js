@@ -1,24 +1,25 @@
 import { glob } from "glob";
-import os from "os";
 import path from "path";
-
-const KNOWN_DIRECTORIES = {
-    "desktop": path.join(os.homedir(), "Desktop"),
-    "documents": path.join(os.homedir(), "Documents"),
-    "downloads": path.join(os.homedir(), "Downloads"),
-    "pictures": path.join(os.homedir(), "Pictures"),
-    "videos": path.join(os.homedir(), "Videos"),
-    "music": path.join(os.homedir(), "Music"),
-    "home": os.homedir(),
-};
+import fs from "fs/promises";
+import { getSystemInfo } from "./systemTools.js";
 
 function resolveDirectory(directory) {
-    if (!directory) return os.homedir();
+    const { paths } = getSystemInfo().result;
 
-    const key = directory.toLowerCase().trim();
-    if (KNOWN_DIRECTORIES[key]) return KNOWN_DIRECTORIES[key];
+    if (!directory) return paths.home;
+    if (path.isAbsolute(directory)) return directory;
 
-    return directory;
+    const normalized = directory.replace(/\\/g, "/");
+    const parts = normalized.split("/");
+    const key = parts[0].toLowerCase().trim();
+
+    if (paths[key]) {
+        return parts.length > 1
+            ? path.join(paths[key], ...parts.slice(1))
+            : paths[key];
+    }
+
+    return path.join(paths.home, directory);
 }
 
 export async function searchFiles(pattern, directory) {
@@ -37,10 +38,33 @@ export async function searchFiles(pattern, directory) {
                 : `No files matching "${pattern}" found in ${resolvedDir}`,
         };
     } catch (error) {
-        console.log(error);
+        console.error(error);
         return {
             success: false,
             result: error.message,
+        };
+    }
+}
+
+export async function writeFile(filePath, content) {
+    try {
+        const dir = path.dirname(filePath);
+        const fileName = path.basename(filePath);
+        const resolvedDir = resolveDirectory(dir);
+        const resolvedPath = path.join(resolvedDir, fileName);
+
+        await fs.mkdir(resolvedDir, { recursive: true });
+        await fs.writeFile(resolvedPath, content, "utf8");
+
+        return {
+            success: true,
+            result: `File written successfully at ${resolvedPath}`
+        };
+
+    } catch (error) {
+        return {
+            success: false,
+            result: error.message
         };
     }
 }
